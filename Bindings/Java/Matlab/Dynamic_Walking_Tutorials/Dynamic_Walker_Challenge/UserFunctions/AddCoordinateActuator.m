@@ -1,3 +1,6 @@
+% This file demonstrates how to add a CoordinateActuator to the model. In
+% this case, the Left Knee of a Passive Dynamic Walker Model.
+
 % -----------------------------------------------------------------------
 % The OpenSim API is a toolkit for musculoskeletal modeling and
 % simulation. See http://opensim.stanford.edu and the NOTICE file
@@ -19,29 +22,30 @@
 % implied. See the License for the specific language governing
 % permissions and limitations under the License.
 % -----------------------------------------------------------------------
-% This script adds a CoordinateActuator to the left knee.
-% simtk.org/api_docs/opensim/api_docs/classOpenSim_1_1CoordinateActuator.html
 
-% Import Java library.
+%% Import OpenSim Libraries.
 import org.opensim.modeling.*
 
-% Open the model.
-walkerModel = Model('../Model/WalkerModelTerrain.osim');
+%% Define the Model File Path.
+% The default is a relative path from the working directory for the example
+model_path = '../Model/WalkerModelTerrain.osim';
 
-% Change the name.
-walkerModel.setName('WalkerModelTerrain_CoordAct');
+%% Instantiate the Model
+walkerModel = Model(model_path);
+% Change the name
+walkerModel.setName('WalkerModelTerrain_CoordinateActuator');
 
-% Display all coordinates in the model.
+%% Display all coordinates in the model.
 numCoords = walkerModel.getNumCoordinates();
 fprintf('There are %d coordinates in the model:\n',numCoords);
 for i=0:numCoords-1
     fprintf('\t(%d) %s\n',i,char(walkerModel.getCoordinateSet().get(i)));
 end
 
-% Create and configure a CoordinateActuator for the left knee.
-jointName = 'LKnee_rz';
-fprintf('Adding CoordinateActuator to %s.\n',jointName);
-coordAct = CoordinateActuator(jointName);
+%% Create and configure a CoordinateActuator for the left knee.
+coordinateName = 'LKnee_rz';
+fprintf('Adding CoordinateActuator to %s.\n',coordinateName);
+coordAct = CoordinateActuator(coordinateName);
 coordAct.setName('coordAct_LK');            % Name
 coordAct.setOptimalForce(10.0);             % Maximum generalized force
 coordAct.setMinControl(-inf);               % Minimum control signal allowed
@@ -50,10 +54,11 @@ coordAct.setMaxControl(inf);                % Maximum control signal allowed
 % Add the force to the model.
 walkerModel.addForce(coordAct);
 
-% Finalize connections
-walkerModel.finalizeConnections();
+%% Finalize connections
+walkerModel.finalizeConnections()
 
-% Save the new model file.
-modelFile_new = '../Model/WalkerModelTerrain_CoordAct.osim';
-walkerModel.print(modelFile_new);
-fprintf('Model saved to %s\n',modelFile_new);
+%% Print the model to file.
+newFilename = strrep(model_path, '.osim', '_CoordinateActuator.osim');
+isSuccessful = walkerModel.print(newFilename);
+if (~isSuccessful), error('Model printed to file failed'); end
+fprintf('Model printed to file successfully\n');

@@ -1,3 +1,5 @@
+% This file demonstrates how to add a ClutchedPathSpring to the model.
+
 % ----------------------------------------------------------------------%
 % The OpenSim API is a toolkit for musculoskeletal modeling and         %
 % simulation. See http://opensim.stanford.edu and the NOTICE file       %
@@ -19,20 +21,23 @@
 % implied. See the License for the specific language governing          %
 % permissions and limitations under the License.                        %
 % ----------------------------------------------------------------------%
-% Import Java Library 
-
-import org.opensim.modeling.*
 
 % NOTE: In this sample code, we've used arbitrary parameters. Tweak them to get
 % your desired result!
 
-% Open the model
-walkerModel = Model('../Model/WalkerModelTerrain.osim');
+%% Import OpenSim Libraries
+import org.opensim.modeling.*
 
+%% Define the Model File Path.
+% The default is a relative path from the working directory for the example
+model_path = '../Model/WalkerModelTerrain.osim';
+
+%% Instantiate the Model
+walkerModel = Model(model_path);
 % Change the name
-walkerModel.setName('WalkerModelTerrainAddPathSpring');
+walkerModel.setName('WalkerModelTerrain_ClutchedPathSpring');
 
-% Create a Path Spring on the right leg
+%% Create a Path Spring on the right leg
 stiffness = 100;
 dissipation = 0.05;
 relaxationTime = 0.01;
@@ -41,8 +46,8 @@ rightSpring = ClutchedPathSpring('path_spring_r', stiffness, dissipation, relaxa
 % Define the geometry path
 rightShankBody = walkerModel.getBodySet().get('RightShank');
 rightThighBody = walkerModel.getBodySet().get('RightThigh');
-rightSpring.updGeometryPath().appendNewPathPoint('right_shank',rightShankBody,Vec3(0,0,0));
-rightSpring.updGeometryPath().appendNewPathPoint('right_thigh',rightThighBody,Vec3(0,0,0));
+rightSpring.updGeometryPath().appendNewPathPoint('right_shank_attachment',rightShankBody,Vec3(0,0,0));
+rightSpring.updGeometryPath().appendNewPathPoint('right_thigh_attachment',rightThighBody,Vec3(0,0,0));
 
 % Add the force to the model
 walkerModel.addForce(rightSpring);
@@ -56,14 +61,17 @@ leftSpring = ClutchedPathSpring('path_spring_l', stiffness, dissipation, relaxat
 % Define the geometry path
 leftShankBody = walkerModel.getBodySet().get('LeftShank');
 leftThighBody = walkerModel.getBodySet().get('LeftThigh');
-leftSpring.updGeometryPath().appendNewPathPoint('left_shank',leftShankBody,Vec3(0,0,0));
-leftSpring.updGeometryPath().appendNewPathPoint('left_thigh',leftThighBody,Vec3(0,0,0));
+leftSpring.updGeometryPath().appendNewPathPoint('left_shank_attachment',leftShankBody,Vec3(0,0,0));
+leftSpring.updGeometryPath().appendNewPathPoint('left_thigh_attachment',leftThighBody,Vec3(0,0,0));
 
 % Add the force to the model
 walkerModel.addForce(leftSpring);
 
-% Finalize connections
+%% Finalize connections
 walkerModel.finalizeConnections()
 
-% Print a new model file
-walkerModel.print('../Model/WalkerModel_ClutchedPathSpring.osim');
+%% Print the model to file.
+newFilename = strrep(model_path, '.osim', '_ClutchedPathSpring.osim');
+isSuccessful = walkerModel.print(newFilename);
+if (~isSuccessful), error('Model printed to file failed'); end
+fprintf('Model printed to file successfully\n');

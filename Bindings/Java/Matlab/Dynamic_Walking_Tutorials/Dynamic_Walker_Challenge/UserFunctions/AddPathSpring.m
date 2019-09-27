@@ -1,7 +1,9 @@
+% This script demonstrates how to add a PathSpring to a model.
+
 % -----------------------------------------------------------------------
 % The OpenSim API is a toolkit for musculoskeletal modeling and
 % simulation. See http://opensim.stanford.edu and the NOTICE file
-% for more information. OpenSim is developed at Stanford University       
+% for more information. OpenSim is developed at Stanford University
 % and supported by the US National Institutes of Health (U54 GM072970,
 % R24 HD065690) and by DARPA through the Warrior Web program.
 %
@@ -20,19 +22,22 @@
 % permissions and limitations under the License.
 % -----------------------------------------------------------------------
 
-% Import Java Library
-import org.opensim.modeling.*
-
 % NOTE: In this sample code, we've used arbitrary parameters. Tweak them to get
 % your desired result!
 
-% Open the model
-walkerModel = Model('../Model/WalkerModel.osim');
+%% Import OpenSim Libraries
+import org.opensim.modeling.*
 
+%% Define the Model File Path.
+% The default is a relative path from the working directory for the example
+model_path = '../Model/WalkerModelTerrain.osim';
+
+%% Instantiate the Model
+walkerModel = Model(model_path);
 % Change the name
-walkerModel.setName('WalkerModel_AddPathSpring');
+walkerModel.setName('WalkerModelTerrain_PathSpring');
 
-% Create a Path Spring on the right leg
+%% Create a Path Spring on the right leg
 restLength = 1.0;
 stiffness = 100;
 dissipation = 0.01;
@@ -45,9 +50,9 @@ rightSpring.updGeometryPath().appendNewPathPoint('right_shank',rightShankBody,Ve
 rightSpring.updGeometryPath().appendNewPathPoint('right_thigh',rightThighBody,Vec3(0,0,0));
 
 % Add the force to the model
-walkerModel.addComponent(rightSpring);
+walkerModel.addForce(rightSpring);
 
-% Create a Path Spring on the left leg
+%% Create a Path Spring on the left leg
 restLength = 1.0;
 stiffness = 1000;
 dissipation = 0.01;
@@ -60,10 +65,13 @@ leftSpring.updGeometryPath().appendNewPathPoint('left_shank',leftShankBody,Vec3(
 leftSpring.updGeometryPath().appendNewPathPoint('left_thigh',leftThighBody,Vec3(0,0,0));
 
 % Add the force to the model
-walkerModel.addComponent(leftSpring);
+walkerModel.addForce(leftSpring);
 
-% Finalize connections
+%% Finalize connections
 walkerModel.finalizeConnections()
 
-% Print a new model file
-walkerModel.print('../Model/WalkerModel_PathSpring.osim');
+%% Print a new model file
+newFilename = strrep(model_path, '.osim', '_PathSpring.osim');
+isSuccessful = walkerModel.print(newFilename);
+if (~isSuccessful), error('Model printed to file failed'); end
+fprintf('Model printed to file successfully\n');

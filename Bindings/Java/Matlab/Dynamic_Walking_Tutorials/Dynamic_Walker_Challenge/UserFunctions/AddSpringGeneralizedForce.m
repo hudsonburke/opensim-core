@@ -1,8 +1,10 @@
+% This script demonstrates how to add a SpringGeneralizedForce to a model.
+
 % -----------------------------------------------------------------------
 % The OpenSim API is a toolkit for musculoskeletal modeling and
 % simulation. See http://opensim.stanford.edu and the NOTICE file
 % for more information. OpenSim is developed at Stanford University
-% and supported by the US National Institutes of Health (U54 GM072970,    
+% and supported by the US National Institutes of Health (U54 GM072970,
 % R24 HD065690) and by DARPA through the Warrior Web program.
 %
 % Copyright (c) 2005-2019 Stanford University and the Authors
@@ -20,19 +22,22 @@
 % permissions and limitations under the License.
 % -----------------------------------------------------------------------
 
-% Import Java Library
-import org.opensim.modeling.*
-
 % NOTE: In this sample code, we've used arbitrary parameters. Tweak them to get
 % your desired result!
 
-% Open the model
-walkerModel = Model('../Model/WalkerModelTerrain.osim');
+%% Import OpenSim Libraries
+import org.opensim.modeling.*
 
+%% Define the Model File Path.
+% The default is a relative path from the working directory for the example
+model_path = '../Model/WalkerModelTerrain.osim';
+
+%% Instantiate the Model
+walkerModel = Model(model_path);
 % Change the name
-walkerModel.setName('WalkerModelTerrainAddSpringGeneralizedForce');
+walkerModel.setName('WalkerModelTerrain_SpringGeneralizedForce');
 
-% Create the springs
+%% Create the springs
 rightSpring = SpringGeneralizedForce('RHip_rz');
 leftSpring = SpringGeneralizedForce('LHip_rz');
 
@@ -55,8 +60,11 @@ leftSpring.setViscosity(viscosity);
 walkerModel.addForce(rightSpring);
 walkerModel.addForce(leftSpring);
 
-% Finalize connections
+%% Finalize connections
 walkerModel.finalizeConnections()
 
-% Print a new model file
-walkerModel.print('../Model/WalkerModelTerrainAddSpringGeneralizedForce.osim');
+%% Print a new model file
+newFilename = strrep(model_path, '.osim', '_SpringGeneralizedForce.osim');
+isSuccessful = walkerModel.print(newFilename);
+if (~isSuccessful), error('Model printed to file failed'); end
+fprintf('Model printed to file successfully\n');
