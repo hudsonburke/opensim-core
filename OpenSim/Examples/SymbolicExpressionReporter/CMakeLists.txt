@@ -12,11 +12,14 @@ add_library(${EXAMPLE_EXPRESSION_REPORTER_PLUGIN} SHARED
     RegisterTypes_osimExpPlugin.h
     SymbolicExpressionReporter.cpp
     SymbolicExpressionReporter.h
-    )
-target_link_libraries(${EXAMPLE_EXPRESSION_REPORTER_PLUGIN}
-    osimSimulation osimActuators osimCommon osimAnalyses osimTools osimLepton
-    ${Simbody_LIBRARIES}
 )
+
+target_link_libraries(${EXAMPLE_EXPRESSION_REPORTER_PLUGIN} PUBLIC
+    osimTools
+    osimLepton
+    SimTK::SimTKsimbody
+)
+
 set_target_properties(${EXAMPLE_EXPRESSION_REPORTER_PLUGIN}
     PROPERTIES
     DEFINE_SYMBOL OSIMEXPPLUGIN_EXPORTS

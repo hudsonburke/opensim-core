@@ -33,6 +33,7 @@ dependencies/*
 # python
 *.pyc
 venv
+.venv/
 
 # Matlab
 *.asv

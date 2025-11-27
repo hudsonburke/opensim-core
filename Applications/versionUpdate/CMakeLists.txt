@@ -1,3 +1,6 @@
 if(OPENSIM_BUILD_INDIVIDUAL_APPS)
-    OpenSimAddApplication(NAME versionUpdate)
+    add_executable(versionUpdate versionUpdate.cpp)
+    target_link_libraries(versionUpdate PUBLIC osimTools)
+    set_target_properties(versionUpdate PROPERTIES FOLDER "Applications")
+    install(TARGETS versionUpdate DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()

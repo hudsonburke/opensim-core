@@ -1,6 +1,8 @@
+# Define the library name.
+set(OSIM_LIB_NAME osimMoco)
 
-
-# TODO: Use OpenSimAddLibrary() macro.
+# Moco has many sources and conditional compilation, so an explicit list is
+# clearer than file(GLOB).
 set(MOCO_SOURCES
         osimMoco.h
         osimMocoDLL.h
@@ -113,7 +115,14 @@ set(MOCO_SOURCES
         MocoOutputBoundConstraint.h
         MocoStateBoundConstraint.cpp
         MocoStateBoundConstraint.h
-        )
+)
+set(MOCO_HEADERS)
+foreach(source_file ${MOCO_SOURCES})
+    if(source_file MATCHES ".*\\.h$")
+        list(APPEND MOCO_HEADERS ${source_file})
+    endif()
+endforeach()
+
 if(OPENSIM_WITH_CASADI)
     list(APPEND MOCO_SOURCES
             MocoCasADiSolver/CasOCProblem.h
@@ -135,55 +144,57 @@ if(OPENSIM_WITH_CASADI)
             MocoCasADiSolver/CasOCIterate.h
             MocoCasADiSolver/MocoCasOCProblem.h
             MocoCasADiSolver/MocoCasOCProblem.cpp
-            )
-endif()
-
-add_library(osimMoco SHARED ${MOCO_SOURCES})
-target_link_libraries(osimMoco PUBLIC osimTools)
-if (OPENSIM_WITH_CASADI)
-    target_link_libraries(osimMoco PRIVATE casadi)
-endif()
-
-target_include_directories(osimMoco INTERFACE
-        $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}>
-        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
-
-set_target_properties(osimMoco PROPERTIES
-        DEFINE_SYMBOL OSIMMOCO_EXPORTS
-        PROJECT_LABEL "osimMoco"
-        FOLDER "Libraries"
-        )
-if (OPENSIM_WITH_CASADI)
-    target_compile_definitions(osimMoco PUBLIC OPENSIM_WITH_CASADI)
-endif ()
-
-# TODO: Remove the concept of a separate Moco version.
-target_compile_definitions(osimMoco PRIVATE
-    OPENSIM_MOCO_VERSION=${OPENSIM_QUALIFIED_VERSION}
-    SWIG_PYTHON
     )
+endif()
 
-OpenSimAddInstallRPATHSelf(TARGET osimMoco LOADER)
-OpenSimAddInstallRPATHSimbody(TARGET osimMoco LOADER
-        FROM "${CMAKE_INSTALL_LIBDIR}")
-install(TARGETS osimMoco EXPORT OpenSimTargets
-        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+# Create the library target.
+add_library(${OSIM_LIB_NAME} SHARED ${MOCO_SOURCES})
 
-# TODO do not install InverseMuscleSolverMotionData.h b/c it uses Eigen.
-install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
-        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/OpenSim/Moco
-        FILES_MATCHING PATTERN "*.h*"
-        PATTERN "Archive" EXCLUDE
-        PATTERN "doc" EXCLUDE
-        PATTERN "Test" EXCLUDE
-        )
+# Set the include directories for this library.
+target_include_directories(${OSIM_LIB_NAME}
+    PUBLIC
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+        $<INSTALL_INTERFACE:include/OpenSim/Moco>
+)
 
+# Link against dependent libraries.
+target_link_libraries(${OSIM_LIB_NAME} PUBLIC osimTools)
+if(OPENSIM_WITH_CASADI)
+    target_link_libraries(${OSIM_LIB_NAME} PRIVATE casadi::casadi)
+endif()
 
+# Set properties for Windows DLL export/import and IDE folders.
+string(TOUPPER "Moco" KIT_UPPER)
+set_target_properties(${OSIM_LIB_NAME} PROPERTIES
+    DEFINE_SYMBOL OSIM${KIT_UPPER}_EXPORTS
+    FOLDER "Libraries"
+)
 
+# Set compile definitions.
+target_compile_definitions(${OSIM_LIB_NAME} PRIVATE SWIG_PYTHON)
+if(OPENSIM_WITH_CASADI)
+    target_compile_definitions(${OSIM_LIB_NAME} PUBLIC OPENSIM_WITH_CASADI)
+endif()
 
+# --- Installation Rules ---
 
+# Install the library target files.
+install(TARGETS ${OSIM_LIB_NAME}
+    EXPORT OpenSimTargets
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    ARCHIVE DESTINATION ${OPENSIM_INSTALL_ARCHIVEDIR}
+)
+
+# Install the header files.
+# We must install headers into subdirectories (e.g., Moco/Goal).
+foreach(header_file ${MOCO_HEADERS})
+    get_filename_component(header_path ${header_file} DIRECTORY)
+    install(FILES ${header_file}
+            DESTINATION "include/OpenSim/Moco/${header_path}")
+endforeach()
+
+# Add the testing subdirectory.
 if(BUILD_TESTING)
     add_subdirectory(Test)
 endif()

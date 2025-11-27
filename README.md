@@ -85,9 +85,48 @@ Examples and Tutorials for OpenSim can be found in the [Examples and tutorials](
 
 This repository contains releases for OpenSim 4.x. You can find all of the OpenSim's releases in the [Releases](https://github.com/opensim-org/opensim-core/releases) page of this repository.
 
-## Build instructions [![platforms](https://img.shields.io/badge/platform-windows%20%7C%20macos%20%7C%20linux-lightgrey)](https://github.com/opensim-org/opensim-core/wiki/Build-Instructions)
+## Build from Source
 
-We provide scripts to build OpenSim on Windows, macOS and Linux (Ubuntu and Debian). The instructions to download and execute the scripts can be found in the [Build Instructions](https://github.com/opensim-org/opensim-core/wiki/Build-Instructions) page of this repository's wiki.
+Building `opensim-core` requires a C++ compiler, CMake, and the vcpkg C++ package manager. The following steps outline the build process.
+
+### 1. Install Dependencies
+
+First, install the required build tools and `vcpkg`.
+
+*   **C++ Compiler:** A modern C++ compiler that supports C++20 (e.g., GCC, Clang, or MSVC).
+*   **CMake:** Version 3.15 or newer.
+*   **Git:** Required for cloning `vcpkg` and `opensim-core`.
+*   **vcpkg:** The C++ package manager used to install dependencies.
+
+Clone and bootstrap `vcpkg`:
+```bash
+# We recommend installing vcpkg outside of the opensim-core project directory
+git clone https://github.com/microsoft/vcpkg.git
+./vcpkg/bootstrap-vcpkg.sh # For Linux/macOS
+# .\vcpkg\bootstrap-vcpkg.bat # For Windows
+```
+
+### 2. Configure and Build OpenSim
+
+Once `vcpkg` is set up, you can configure and build `opensim-core`. The key is to tell CMake to use the `vcpkg` toolchain file, which allows it to automatically find all the dependencies installed by `vcpkg`.
+
+First, clone the `opensim-core` repository:
+```bash
+git clone https://github.com/opensim-org/opensim-core.git
+cd opensim-core
+```
+
+Now, configure the project with CMake, pointing to your `vcpkg` installation. `vcpkg` will automatically install the dependencies listed in the `vcpkg.json` file.
+```bash
+# Replace <path-to-vcpkg> with the actual path to your vcpkg directory
+cmake -B build -S . -DCMAKE_TOOLCHAIN_FILE=<path-to-vcpkg>/scripts/buildsystems/vcpkg.cmake
+```
+
+Finally, run the build:
+```bash
+cmake --build build --config Release
+```
+This will build the OpenSim libraries and executables in the `build` directory.
 
 ## Contribute [![GitHub contributors](https://img.shields.io/github/contributors/opensim-org/opensim-core)](https://github.com/opensim-org/opensim-core/graphs/contributors)
 

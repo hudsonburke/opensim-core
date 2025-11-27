@@ -1,7 +1,10 @@
 if(OPENSIM_BUILD_INDIVIDUAL_APPS)
-    OpenSimAddApplication(NAME scale)
+    add_executable(scale scale.cpp)
+    target_link_libraries(scale PUBLIC osimTools)
+    set_target_properties(scale PROPERTIES FOLDER "Applications")
+    install(TARGETS scale DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()
 
 if(BUILD_TESTING)
-    subdirs(test)
-endif(BUILD_TESTING)
+    add_subdirectory(test)
+endif()

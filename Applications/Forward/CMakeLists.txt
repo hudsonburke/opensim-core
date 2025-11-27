@@ -1,7 +1,10 @@
 if(OPENSIM_BUILD_INDIVIDUAL_APPS)
-    OpenSimAddApplication(NAME forward)
+    add_executable(forward forward.cpp)
+    target_link_libraries(forward PUBLIC osimTools)
+    set_target_properties(forward PROPERTIES FOLDER "Applications")
+    install(TARGETS forward DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()
 
 if(BUILD_TESTING)
-    subdirs(test)
-endif(BUILD_TESTING)
+    add_subdirectory(test)
+endif()

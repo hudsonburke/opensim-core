@@ -1,0 +1,16 @@
+{
+  "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
+  "name": "opensim-core",
+  "version": "4.5.0",
+  "builtin-baseline": "0b157476193b3d179d65b1ff3c43c16a854291bc",
+  "dependencies": [
+    "simbody",
+    "casadi",
+    "ipopt",
+    "spdlog",
+    "catch2",
+    "ezc3d",
+    "docopt.cpp",
+    "lepton"
+  ]
+}

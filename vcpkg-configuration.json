@@ -1,0 +1,13 @@
+{
+  "default-registry": {
+    "kind": "builtin",
+    "baseline": "e272a74c2e6945866657934416d86de8e24c2977"
+  },
+  "registries": [
+    {
+      "kind": "filesystem",
+      "path": "${json_root}/vcpkg-registry",
+      "packages": [ "lepton" ]
+    }
+  ]
+}

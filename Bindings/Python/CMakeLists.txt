@@ -152,7 +152,6 @@ macro(OpenSimAddPythonModule)
     # https://github.com/opensim-org/opensim-core/issues/2771
     # https://stackoverflow.com/questions/25421479/clang-and-undefined-symbols-when-building-a-library
     # https://github.com/lisitsyn/shogun/commit/961f6109c2a8abab4941bcdde1a19dfe70c440f1
-    # https://github.com/shogun-toolbox/shogun/issues/4068
     execute_process(COMMAND "${Python3_EXECUTABLE}" -c
         "import sysconfig; print(sysconfig.get_config_var('LDSHARED'))"
         OUTPUT_VARIABLE PYTHON_LDSHARED
@@ -161,10 +160,10 @@ macro(OpenSimAddPythonModule)
         set_target_properties(${_libname} PROPERTIES LINK_FLAGS
             "-undefined dynamic_lookup")
     else()
-        target_link_libraries(${_libname} ${Python3_LIBRARIES})
+        target_link_libraries(${_libname} PRIVATE ${Python3_LIBRARIES})
     endif()
 
-    target_link_libraries(${_libname} osimTools osimExampleComponents osimMoco)
+    target_link_libraries(${_libname} PRIVATE osimTools osimExampleComponents osimMoco)
     
     # Set target properties for various platforms.
     # --------------------------------------------
@@ -181,24 +180,8 @@ macro(OpenSimAddPythonModule)
         set_target_properties(${_libname} PROPERTIES SUFFIX ".so")
     endif()
     
-    # RPATH: We always set a relative RPATH but only use an absolute RPATH if
-    # the python package is not standalone, as the libraries are not copied
-    # into the python package. If Simbody libraries are not installed in the
-    # same folder as the OpenSim libraries, then we must also provide the path
-    # to the Simbody libraries within OpenSim's installation.
-    OpenSimAddInstallRPATHSelf(TARGET ${_libname})
-    OpenSimAddInstallRPATH(TARGET ${_libname} LOADER 
-        FROM "${OPENSIM_INSTALL_PYTHONDIR}/opensim"
-        TO "${CMAKE_INSTALL_LIBDIR}")
-    if(NOT OPENSIM_PYTHON_STANDALONE)
-        OpenSimAddInstallRPATHAbsolute(TARGET ${_libname}
-            TO "${CMAKE_INSTALL_LIBDIR}")
-    endif()
-    OpenSimAddInstallRPATHSimbody(TARGET ${_libname} LOADER
-        FROM "${CMAKE_INSTALL_LIBDIR}/opensim")
-    if(NOT OPENSIM_PYTHON_STANDALONE)
-        OpenSimAddInstallRPATHSimbody(TARGET ${_libname} ABSOLUTE)
-    endif()
+    # RPATH handling is now managed by modern CMake via install(TARGETS ...).
+    # The old manual RPATH logic has been removed.
 
     # Copy files into the build tree python package.
     # ----------------------------------------------
